@@ -66,6 +66,7 @@ public class AddressBook {
      * =========================================================================
      */
     private static final String MESSAGE_ADDED = "New person added: %1$s, Phone: %2$s, Email: %3$s";
+    private static final String MESSAGE_ADDED_FAVOURITE = "New favourite person added to top of book: %1$s, Phone: %2$s, Email: %3$s";
     private static final String MESSAGE_ADDRESSBOOK_CLEARED = "Address book has been cleared!";
     private static final String MESSAGE_COMMAND_HELP = "%1$s: %2$s";
     private static final String MESSAGE_COMMAND_HELP_PARAMETERS = "\tParameters: %1$s";
@@ -426,6 +427,11 @@ public class AddressBook {
 
         // add the person as specified
         final String[] personToAdd = decodeResult.get();
+        if (personToAdd[0].charAt(0)=='f' && personToAdd[0].charAt(1)=='a' && personToAdd[0].charAt(2)=='v' && personToAdd[0].charAt(3)==' '){
+            personToAdd[0] = personToAdd[0].substring(4);
+            addPersonToAddressBookPriority(personToAdd);
+            return getMessageForSuccessfulAddPerson(personToAdd);
+        }
         addPersonToAddressBook(personToAdd);
         return getMessageForSuccessfulAddPerson(personToAdd);
     }
@@ -438,6 +444,17 @@ public class AddressBook {
      * @return successful add person feedback message
      */
     private static String getMessageForSuccessfulAddPerson(String[] addedPerson) {
+        return String.format(MESSAGE_ADDED_FAVOURITE,
+                getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
+    }
+
+    /**
+     * Constructs a feedback message for a successful add favourite person command execution.
+     *
+     * @param addedPerson person who was successfully added
+     * @return successful add favourite person feedback message
+     */
+    private static String getMessageForSuccessfulAddFavPerson(String[] addedPerson) {
         return String.format(MESSAGE_ADDED,
                 getNameFromPerson(addedPerson), getPhoneFromPerson(addedPerson), getEmailFromPerson(addedPerson));
     }
@@ -786,6 +803,12 @@ public class AddressBook {
         ALL_PERSONS.add(person);
         savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
     }
+
+    private static void addPersonToAddressBookPriority(String[] person) {
+        ALL_PERSONS.add(0, person);
+        savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+    }
+
 
     /**
      * Deletes the specified person from the addressbook if it is inside. Saves any changes to storage file.
